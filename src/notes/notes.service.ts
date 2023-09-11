@@ -2,33 +2,31 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { NotesRepository } from 'src/datasource/repositories';
 import { NotePayloadDTO } from './dtos';
 import { Note } from 'src/datasource/entities';
-import { randomUUID } from 'crypto';
 
 @Injectable()
 export class NotesService {
   constructor(private readonly notesRepository: NotesRepository) {}
 
-  addNewNote(payload: NotePayloadDTO): string {
+  async addNewNote(payload: NotePayloadDTO): Promise<string> {
     const newNote = new Note();
-    newNote.id = randomUUID();
     newNote.title = payload.title ?? 'Untitled';
     newNote.body = payload.body ?? '';
     newNote.tags = payload.tags || [];
     return this.notesRepository.addNote(newNote);
   }
 
-  getAllNotes(): Note[] {
+  async getAllNotes(): Promise<Note[]> {
     return this.notesRepository.getNotes();
   }
 
-  getNoteById(id: string): Note {
-    const note = this.notesRepository.getNoteById(id);
+  async getNoteById(id: string): Promise<Note> {
+    const note = await this.notesRepository.getNoteById(id);
     if (!note) throw new NotFoundException('Note not found');
     return note;
   }
 
-  updateNoteById(id: string, payload: NotePayloadDTO): Note {
-    const note = this.getNoteById(id);
+  async updateNoteById(id: string, payload: NotePayloadDTO): Promise<Note> {
+    const note = await this.getNoteById(id);
     note.body = payload.body ?? note.body;
     note.tags = payload.tags ?? note.tags;
     note.title = payload.title ?? note.title;
@@ -38,7 +36,7 @@ export class NotesService {
     return this.notesRepository.getNoteById(id);
   }
 
-  deleteNoteById(id: string): void {
+  async deleteNoteById(id: string): Promise<void> {
     this.getNoteById(id);
     this.notesRepository.deleteNoteById(id);
   }

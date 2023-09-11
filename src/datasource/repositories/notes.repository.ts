@@ -1,36 +1,41 @@
+import { InjectEntityManager } from '@nestjs/typeorm';
 import { Note } from '../entities';
+import { EntityManager, Repository } from 'typeorm';
 
 export class NotesRepository {
-  noteDatasource: Note[];
-  constructor() {
-    this.noteDatasource = [];
+  noteDatasource: Repository<Note>;
+  constructor(
+    @InjectEntityManager() private readonly datasource: EntityManager,
+  ) {
+    this.noteDatasource = datasource.getRepository(Note);
   }
 
-  addNote(note: Note): string {
-    this.noteDatasource.push(note);
-    return note.id;
+  async addNote(note: Note): Promise<string> {
+    const addedNote = await this.noteDatasource.save(note);
+
+    return addedNote.id;
   }
 
-  getNotes(): Note[] {
-    return this.noteDatasource;
+  async getNotes(): Promise<Note[]> {
+    const notes = await this.noteDatasource.find();
+    return notes;
   }
 
-  getNoteById(id: string): Note {
-    return this.noteDatasource.find((note) => note.id === id);
+  async getNoteById(id: string): Promise<Note> {
+    const note = this.noteDatasource.findOneBy({ id });
+    return note;
   }
 
-  updateNoteById(id: string, newNote: Note): void {
-    for (const note of this.noteDatasource) {
-      if (note.id === id) {
-        note.body = newNote.body ?? note.body;
-        note.tags = newNote.tags ?? note.tags;
-        note.title = newNote.title ?? note.title;
-      }
-    }
+  async updateNoteById(id: string, note: Note): Promise<void> {
+    await this.noteDatasource.save({
+      id,
+      title: note.title,
+      body: note.body,
+      tags: note.tags,
+    });
   }
 
-  deleteNoteById(id: string): void {
-    this.noteDatasource = this.noteDatasource.filter((note) => note.id !== id);
-    console.log(this.noteDatasource);
+  async deleteNoteById(id: string): Promise<void> {
+    await this.noteDatasource.delete({ id });
   }
 }
