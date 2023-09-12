@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { NotesRepository } from './repositories';
+import { NotesRepository, UsersRepository } from './repositories';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-const repositories = [NotesRepository];
+const repositories = [NotesRepository, UsersRepository];
 @Module({
   imports: [
     TypeOrmModule.forRoot({
