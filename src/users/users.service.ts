@@ -26,4 +26,14 @@ export class UsersService {
 
     return addedUser;
   }
+
+  async getUserById(id: string): Promise<User> {
+    const user = await this.usersRepository.getUserById(id);
+    delete user.password;
+    return user;
+  }
+
+  async getUsersWithSimiliarUsername(username: string): Promise<User[]> {
+    return this.usersRepository.getUsersWithSimiliarUsername(username);
+  }
 }
