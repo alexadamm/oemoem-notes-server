@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { RegisterUserDTO } from './dtos/register-user.dto';
 import { UsersRepository } from 'src/datasource/repositories';
 import { User } from 'src/datasource/entities';
+import { PasswordHasher } from 'src/helpers';
 
 @Injectable()
 export class UsersService {
@@ -17,7 +18,7 @@ export class UsersService {
     const user = new User();
     user.username = payload.username;
     user.fullname = payload.fullname;
-    user.password = payload.password;
+    user.password = await PasswordHasher.hashPassword(payload.password);
 
     const addedUser = await this.usersRepository.addUser(user);
 
