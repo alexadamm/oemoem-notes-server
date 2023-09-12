@@ -1,4 +1,11 @@
-import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Authentication } from './authentications.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -14,4 +21,7 @@ export class User {
 
   @Column({ name: 'password', type: 'text' })
   password: string;
+
+  @OneToMany(() => Authentication, (auth) => auth.user)
+  authentications: Authentication[];
 }
