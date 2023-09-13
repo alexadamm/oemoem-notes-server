@@ -6,14 +6,18 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { ResponseWrapper } from 'src/helpers';
 import { NotesService } from './notes.service';
 import { NotePayloadDTO } from './dtos';
+import { AuthGuard } from 'src/commons/auth-guard';
 
+@UseGuards(AuthGuard)
 @Controller('notes')
 export class NotesController {
   constructor(private readonly notesService: NotesService) {}
+
   @Post()
   async postNotes(@Body() payload: NotePayloadDTO): Promise<ResponseWrapper> {
     const noteId = await this.notesService.addNewNote(payload);
