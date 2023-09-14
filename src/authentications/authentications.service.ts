@@ -1,10 +1,16 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { UsersRepository } from 'src/datasource/repositories';
 import { AuthenticationsRepository } from 'src/datasource/repositories/authentications.repository';
-import { LoginPayloadDTO, AuthTokenDTO } from './dtos';
+import { LoginPayloadDTO, AuthTokenDTO, LogoutPayloadDTO } from './dtos';
 import { PasswordHasher } from 'src/helpers';
 import { Authentication } from 'src/datasource/entities';
 import { JwtService } from '@nestjs/jwt';
+import { JwtPayloadDTO } from 'src/commons/dto/jwt-payload.dto';
+import { decode } from 'jsonwebtoken';
 
 @Injectable()
 export class AuthenticationsService {
@@ -32,6 +38,18 @@ export class AuthenticationsService {
     const addedAuthId = await this.authRepository.insertNewAuth(newAuth);
 
     return this.generateTokens(username, user.id, addedAuthId);
+  }
+
+  async logoutUser(payload: LogoutPayloadDTO, userId: string): Promise<void> {
+    const { refreshToken } = payload;
+    const tokenPayload: JwtPayloadDTO = decode(refreshToken) as JwtPayloadDTO;
+
+    if (tokenPayload.sub !== userId)
+      throw new ForbiddenException(
+        'You are not allowed to log out as another user',
+      );
+
+    await this.authRepository.deleteAuth(tokenPayload.jti);
   }
 
   generateTokens(

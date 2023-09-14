@@ -9,6 +9,7 @@ import {
   JWT_ISSUER,
   JWT_SECRET,
 } from 'src/helpers';
+import { CommonsModule } from 'src/commons/commons.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import {
       },
     }),
     DatasourceModule,
+    CommonsModule,
   ],
   providers: [AuthenticationsService],
   controllers: [AuthenticationsController],
