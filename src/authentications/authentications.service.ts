@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UsersRepository } from 'src/datasource/repositories';
 import { AuthenticationsRepository } from 'src/datasource/repositories/authentications.repository';
@@ -30,7 +31,8 @@ export class AuthenticationsService {
       password,
       user.password,
     );
-    if (!isPasswordVerified) throw new BadRequestException('Invalid password');
+    if (!isPasswordVerified)
+      throw new UnauthorizedException('Invalid password');
 
     const newAuth = new Authentication();
     newAuth.user = user;
@@ -42,6 +44,11 @@ export class AuthenticationsService {
 
   async logoutUser(payload: LogoutPayloadDTO, userId: string): Promise<void> {
     const { refreshToken } = payload;
+    try {
+      this.jwtService.verify(refreshToken);
+    } catch (err) {
+      throw new BadRequestException('Invalid refresh token');
+    }
     const tokenPayload: JwtPayloadDTO = this.jwtService.decode(
       refreshToken,
     ) as JwtPayloadDTO;
@@ -58,7 +65,11 @@ export class AuthenticationsService {
     payload: RefreshTokenPayloadDTO,
   ): Promise<AuthTokensDTO> {
     const { refreshToken } = payload;
-    this.jwtService.verify(refreshToken);
+    try {
+      this.jwtService.verify(refreshToken);
+    } catch (err) {
+      throw new BadRequestException('Invalid refresh token');
+    }
     const tokenPayload: JwtPayloadDTO = this.jwtService.decode(
       refreshToken,
     ) as JwtPayloadDTO;
