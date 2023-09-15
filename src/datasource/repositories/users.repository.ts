@@ -10,10 +10,10 @@ export class UsersRepository {
     this.usersDatasource = datasource.getRepository(User);
   }
 
-  async addUser(user: User): Promise<User> {
+  async addUser(user: User): Promise<string> {
     const addedUser = await this.usersDatasource.save(user);
 
-    return addedUser;
+    return addedUser.id;
   }
 
   async getUserByUsername(username: string): Promise<User> {

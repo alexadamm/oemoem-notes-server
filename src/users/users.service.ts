@@ -11,7 +11,7 @@ import { PasswordHasher } from 'src/helpers';
 @Injectable()
 export class UsersService {
   constructor(private readonly usersRepository: UsersRepository) {}
-  async registerUser(payload: RegisterUserDTO): Promise<User> {
+  async registerUser(payload: RegisterUserDTO): Promise<string> {
     const userWithSameUsername = await this.usersRepository.getUserByUsername(
       payload.username,
     );
@@ -24,11 +24,7 @@ export class UsersService {
     user.fullname = payload.fullname;
     user.password = await PasswordHasher.hashPassword(payload.password);
 
-    const addedUser = await this.usersRepository.addUser(user);
-
-    delete addedUser.password;
-
-    return addedUser;
+    return await this.usersRepository.addUser(user);
   }
 
   async getUserById(id: string): Promise<User> {

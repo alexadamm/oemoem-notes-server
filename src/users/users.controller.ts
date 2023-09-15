@@ -9,8 +9,8 @@ export class UsersController {
 
   @Post()
   async postUsers(@Body() payload: RegisterUserDTO): Promise<ResponseWrapper> {
-    const addedUser = await this.usersService.registerUser(payload);
-    return ResponseWrapper.success('User added successfully', { addedUser });
+    const userId = await this.usersService.registerUser(payload);
+    return ResponseWrapper.success('User added successfully', { userId });
   }
 
   @Get()
