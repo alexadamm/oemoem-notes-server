@@ -16,13 +16,22 @@ export class NotesRepository {
     return addedNote.id;
   }
 
-  async getNotes(): Promise<Note[]> {
-    const notes = await this.noteDatasource.find();
+  async getNotesByUserId(userId: string): Promise<Note[]> {
+    const notes = await this.noteDatasource.findBy({
+      owner: {
+        id: userId,
+      },
+    });
     return notes;
   }
 
   async getNoteById(id: string): Promise<Note> {
-    const note = this.noteDatasource.findOneBy({ id });
+    const note = this.noteDatasource
+      .createQueryBuilder('notes')
+      .leftJoinAndSelect('notes.owner', 'owner')
+      .where('notes.id = :id', { id })
+      .select(['notes', 'owner.username', 'owner.id'])
+      .getOne();
     return note;
   }
 

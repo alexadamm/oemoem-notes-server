@@ -2,10 +2,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { User } from './users.entity';
 
 @Entity({ name: 'notes' })
 export class Note {
@@ -27,6 +30,10 @@ export class Note {
 
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
+
+  @ManyToOne(() => User, (user) => user.notes)
+  @JoinColumn({ name: 'owner_id' })
+  owner: User;
 
   constructor(title?: string, body?: string, tags?: string[]) {
     this.title = title;

@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Authentication } from './authentications.entity';
+import { Note } from './notes.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -24,4 +25,7 @@ export class User {
 
   @OneToMany(() => Authentication, (auth) => auth.user)
   authentications: Authentication[];
+
+  @OneToMany(() => Note, (notes) => notes.owner)
+  notes: string[];
 }
