@@ -51,12 +51,8 @@ export class NotesController {
     @Body() payload: NotePayloadDTO,
     @Req() req: AuthorizedRequestDTO,
   ): Promise<ResponseWrapper> {
-    const updatedNote = await this.notesService.updateNoteById(
-      id,
-      payload,
-      req.user,
-    );
-    return ResponseWrapper.success('Note updated successfully', updatedNote);
+    const note = await this.notesService.updateNoteById(id, payload, req.user);
+    return ResponseWrapper.success('Note updated successfully', note);
   }
 
   @Delete(':id')
