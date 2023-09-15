@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { RegisterUserDTO } from './dtos/register-user.dto';
 import { UsersRepository } from 'src/datasource/repositories';
 import { User } from 'src/datasource/entities';
@@ -29,6 +33,7 @@ export class UsersService {
 
   async getUserById(id: string): Promise<User> {
     const user = await this.usersRepository.getUserById(id);
+    if (!user) throw new NotFoundException('User not found');
     delete user.password;
     return user;
   }

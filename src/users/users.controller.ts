@@ -23,7 +23,7 @@ export class UsersController {
     return ResponseWrapper.success('Users found successfully', { users });
   }
 
-  @Get('id')
+  @Get(':id')
   async getUserById(@Param('id') id: string): Promise<ResponseWrapper> {
     const user = await this.usersService.getUserById(id);
 

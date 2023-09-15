@@ -18,11 +18,11 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     let token = request.headers?.authorization;
 
+    if (!token) throw new UnauthorizedException('No token provided');
+
     if (token.startsWith('Bearer ')) {
       token = token.slice(7, token.length);
     }
-
-    if (!token) throw new UnauthorizedException('No token provided');
 
     try {
       jwt.verify(token, JWT_SECRET, {
