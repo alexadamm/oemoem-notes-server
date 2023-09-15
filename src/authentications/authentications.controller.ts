@@ -1,9 +1,18 @@
-import { Body, Controller, Delete, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Post,
+  Put,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthenticationsService } from './authentications.service';
 import { ResponseWrapper } from 'src/helpers';
 import { LoginPayloadDTO, LogoutPayloadDTO } from './dtos';
 import { AuthGuard } from 'src/commons/auth-guard';
 import { AuthorizedRequestDTO } from 'src/commons/dto/authorized-request.dto';
+import { RefreshTokenPayloadDTO } from './dtos/refresh-token.payload.dto';
 
 @Controller('authentications')
 export class AuthenticationsController {
@@ -25,5 +34,11 @@ export class AuthenticationsController {
   ): Promise<ResponseWrapper> {
     await this.authService.logoutUser(payload, req.user.sub);
     return ResponseWrapper.success('User successfully logged out');
+  }
+
+  @Put()
+  async putAuthenticaton(@Body() payload: RefreshTokenPayloadDTO) {
+    const result = await this.authService.updateAccessToken(payload);
+    return ResponseWrapper.success('Token successfully updated', result);
   }
 }

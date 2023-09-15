@@ -5,12 +5,12 @@ import {
 } from '@nestjs/common';
 import { UsersRepository } from 'src/datasource/repositories';
 import { AuthenticationsRepository } from 'src/datasource/repositories/authentications.repository';
-import { LoginPayloadDTO, AuthTokenDTO, LogoutPayloadDTO } from './dtos';
+import { LoginPayloadDTO, AuthTokensDTO, LogoutPayloadDTO } from './dtos';
 import { PasswordHasher } from 'src/helpers';
 import { Authentication } from 'src/datasource/entities';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayloadDTO } from 'src/commons/dto/jwt-payload.dto';
-import { decode } from 'jsonwebtoken';
+import { RefreshTokenPayloadDTO } from './dtos/refresh-token.payload.dto';
 
 @Injectable()
 export class AuthenticationsService {
@@ -20,7 +20,7 @@ export class AuthenticationsService {
     private readonly authRepository: AuthenticationsRepository,
   ) {}
 
-  async loginUser(payload: LoginPayloadDTO): Promise<AuthTokenDTO> {
+  async loginUser(payload: LoginPayloadDTO): Promise<AuthTokensDTO> {
     const { username, password } = payload;
 
     const user = await this.usersRepository.getUserByUsername(username);
@@ -42,7 +42,9 @@ export class AuthenticationsService {
 
   async logoutUser(payload: LogoutPayloadDTO, userId: string): Promise<void> {
     const { refreshToken } = payload;
-    const tokenPayload: JwtPayloadDTO = decode(refreshToken) as JwtPayloadDTO;
+    const tokenPayload: JwtPayloadDTO = this.jwtService.decode(
+      refreshToken,
+    ) as JwtPayloadDTO;
 
     if (tokenPayload.sub !== userId)
       throw new ForbiddenException(
@@ -52,11 +54,40 @@ export class AuthenticationsService {
     await this.authRepository.deleteAuth(tokenPayload.jti);
   }
 
+  async updateAccessToken(
+    payload: RefreshTokenPayloadDTO,
+  ): Promise<AuthTokensDTO> {
+    const { refreshToken } = payload;
+    this.jwtService.verify(refreshToken);
+    const tokenPayload: JwtPayloadDTO = this.jwtService.decode(
+      refreshToken,
+    ) as JwtPayloadDTO;
+
+    const session = await this.authRepository.getAuth(
+      tokenPayload.jti,
+      tokenPayload.sub,
+    );
+
+    if (!session) {
+      throw new BadRequestException('User is already logged out');
+    }
+
+    const newAccessToken = this.generateAccessToken(
+      tokenPayload.sub,
+      tokenPayload.username,
+    );
+
+    const result = new AuthTokensDTO();
+    result.accessToken = newAccessToken;
+
+    return result;
+  }
+
   generateTokens(
     username: string,
     subject: string,
     jwtid: string,
-  ): AuthTokenDTO {
+  ): AuthTokensDTO {
     const options = { jwtid, subject };
     const refreshToken = this.jwtService.sign({ username }, options);
 
