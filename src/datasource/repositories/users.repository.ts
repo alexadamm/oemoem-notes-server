@@ -1,6 +1,6 @@
 import { InjectEntityManager } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
-import { User } from '../entities';
+import { User } from '../entities/users.entity';
 
 export class UsersRepository {
   usersDatasource: Repository<User>;
@@ -10,26 +10,24 @@ export class UsersRepository {
     this.usersDatasource = datasource.getRepository(User);
   }
 
-  async addUser(user: User): Promise<string> {
-    const addedUser = await this.usersDatasource.save(user);
+  async addUsers(user: User[]): Promise<User[]> {
+    try {
+      const addedUsers = await this.usersDatasource.save(user);
 
-    return addedUser.id;
-  }
-
-  async getUserByUsername(username: string): Promise<User> {
-    return this.usersDatasource.findOneBy({ username });
+      return addedUsers;
+    } catch (err) {
+      throw err;
+    }
   }
 
   async getUserById(id: string): Promise<User> {
     return this.usersDatasource.findOneBy({ id });
   }
 
-  async getUsersWithSimiliarUsername(username: string): Promise<User[]> {
-    const users: User[] = await this.usersDatasource.query(
-      'SELECT id, username, fullname FROM users WHERE username LIKE ?',
-      [`%${username}%`],
-    );
-
-    return users;
+  async getUserByKey(key: string): Promise<User> {
+    return this.usersDatasource.findOne({
+      where: { key },
+      select: { id: true },
+    });
   }
 }

@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Directory } from './directories.entity';
 import { User } from './users.entity';
 
 @Entity({ name: 'notes' })
@@ -22,8 +23,11 @@ export class Note {
   @Column({ name: 'body', type: 'varchar' })
   body: string;
 
-  @Column({ name: 'tags', type: 'json' })
-  tags: string[];
+  @Column({ name: 'direcory_id', default: 0 })
+  directoryId: string;
+
+  @ManyToOne(() => Directory, (d) => d.notes)
+  directory: Directory;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
@@ -31,13 +35,15 @@ export class Note {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
+  @Column({ name: 'owner_id' })
+  ownerId: string;
+
   @ManyToOne(() => User, (user) => user.notes)
   @JoinColumn({ name: 'owner_id' })
   owner: User;
 
-  constructor(title?: string, body?: string, tags?: string[]) {
+  constructor(title?: string, body?: string) {
     this.title = title;
     this.body = body;
-    this.tags = tags;
   }
 }

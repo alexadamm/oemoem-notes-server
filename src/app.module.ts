@@ -2,12 +2,11 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { NotesModule } from './notes/notes.module';
+import { DirectoryModule } from './directories/directory.module';
 import { UsersModule } from './users/users.module';
-import { AuthenticationsModule } from './authentications/authentications.module';
-import { CommonsModule } from './commons/commons.module';
 
 @Module({
-  imports: [NotesModule, UsersModule, AuthenticationsModule, CommonsModule],
+  imports: [NotesModule, DirectoryModule, UsersModule],
   controllers: [AppController],
   providers: [AppService],
 })

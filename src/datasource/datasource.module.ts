@@ -1,13 +1,10 @@
 import { Module } from '@nestjs/common';
-import { NotesRepository, UsersRepository } from './repositories';
+import { NotesRepository } from './repositories';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthenticationsRepository } from './repositories/authentications.repository';
+import { UsersRepository } from './repositories/users.repository';
+import { DirectoriesRepository } from './repositories/directories.repository';
 
-const repositories = [
-  NotesRepository,
-  UsersRepository,
-  AuthenticationsRepository,
-];
+const repositories = [NotesRepository, UsersRepository, DirectoriesRepository];
 
 @Module({
   imports: [

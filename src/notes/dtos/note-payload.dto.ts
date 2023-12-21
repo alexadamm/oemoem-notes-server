@@ -1,19 +1,16 @@
-import { IsArray, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 
-export class NotePayloadDTO {
+export class NoteInteractionPayloadDTO {
+  @IsNotEmpty()
+  @IsString()
+  directoryId: string;
+}
+
+export class NotePayloadDTO extends NoteInteractionPayloadDTO {
   @IsOptional()
   @IsString()
   @MaxLength(50, { message: 'title is too long' })
   title?: string;
-
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  @MaxLength(10, {
-    each: true,
-    message: 'tag is too long',
-  })
-  tags?: string[];
 
   @IsOptional()
   @IsString()
