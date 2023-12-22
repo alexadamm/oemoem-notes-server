@@ -49,8 +49,9 @@ export class NotesService {
     note.body = payload.body ?? note.body;
     note.title = payload.title ?? note.title;
     note.directoryId = payload.directoryId;
+    delete note.owner;
 
-    this.notesRepository.updateNoteById(id, note);
+    await this.notesRepository.updateNoteById(id, note);
 
     return this.notesRepository.getNoteById(id);
   }
